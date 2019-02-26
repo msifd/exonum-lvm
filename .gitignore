@@ -1,0 +1,14 @@
+# vim files
+*.swp
+# macos files
+*.DS_Store
+
+# cargo
+target
+rls
+Cargo.lock
+
+# IDE files
+.idea
+.vscode
+*.iml
