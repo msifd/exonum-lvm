@@ -1,6 +1,6 @@
 use exonum::{
     crypto::{Hash, PublicKey},
-    storage::{Fork, ProofListIndex, ProofMapIndex, Snapshot, Patch},
+    storage::{Fork, ProofMapIndex, Snapshot},
 };
 
 use super::{

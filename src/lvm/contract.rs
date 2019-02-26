@@ -1,17 +1,10 @@
 use exonum::{
-    crypto::{Hash, PublicKey},
-    storage::Fork,
+    crypto::PublicKey,
 };
 
-use std::{
-    collections::HashMap,
-    iter::FromIterator,
-};
+use std::collections::HashMap;
 
-use super::{
-    proto,
-    schema::Schema,
-};
+use super::proto;
 
 #[derive(Clone, Debug, ProtobufConvert)]
 #[exonum(pb = "proto::Contract", serde_pb_convert)]

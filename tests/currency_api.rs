@@ -21,11 +21,7 @@
 #[macro_use]
 extern crate serde_json;
 
-use exonum_lvm::currency::{
-    // api::{WalletInfo, WalletQuery},
-    transactions::{CreateWallet, Transfer},
-    wallet::Wallet,
-};
+use exonum_lvm::currency::transactions::Transfer;
 
 // Imports shared test constants.
 use common::{

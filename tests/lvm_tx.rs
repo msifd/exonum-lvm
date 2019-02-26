@@ -69,3 +69,55 @@ fn contract_changes_state() {
     let contract_after = api.get_contract(contract_pub).unwrap();
     assert_eq!(contract_after.state.get("hello"), Some(&"lvm".to_string()));
 }
+
+#[test]
+fn contract_persist_state() {
+    let (mut testkit, api) = create_testkit();
+
+    let code = r#"
+        function reset()
+            state["counter"] = 0
+        end
+
+        function increase()
+            state["counter"] = state["counter"] + 1
+        end
+    "#;
+    let (tx, contract_pub) = api.create_contract(code);
+    testkit.create_block();
+    api.assert_tx_status(tx.hash(), &json!({ "type": "success" }));
+
+    let tx = api.call_contract(&contract_pub, "reset", vec![]);
+    testkit.create_block();
+    api.assert_tx_status(tx.hash(), &json!({ "type": "success" }));
+
+    for _ in 0..2 {
+        let tx = api.call_contract(&contract_pub, "increase", vec![]);
+        testkit.create_block();
+        api.assert_tx_status(tx.hash(), &json!({ "type": "success" }));
+    }
+
+    let contract = api.get_contract(contract_pub).unwrap();
+    assert_eq!(contract.state.get("counter"), Some(&"2.0".to_string()));
+}
+
+#[test]
+fn contract_num_types() {
+    let (mut testkit, api) = create_testkit();
+
+    let code = r#"
+        function set(x)
+            state["value"] = x * 2
+        end
+    "#;
+    let (tx, contract_pub) = api.create_contract(code);
+    testkit.create_block();
+    api.assert_tx_status(tx.hash(), &json!({ "type": "success" }));
+
+    let tx = api.call_contract(&contract_pub, "set", vec!["5"]);
+    testkit.create_block();
+    api.assert_tx_status(tx.hash(), &json!({ "type": "success" }));
+
+    let contract = api.get_contract(contract_pub).unwrap();
+    assert_eq!(contract.state.get("value"), Some(&"10.0".to_string()));
+}

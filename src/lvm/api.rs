@@ -1,9 +1,9 @@
 use exonum::{
     api::{self, ServiceApiBuilder, ServiceApiState},
-    blockchain::{self, BlockProof, TransactionMessage},
-    crypto::{Hash, PublicKey},
+    blockchain::{self, BlockProof},
+    crypto::PublicKey,
     helpers::Height,
-    storage::{ListProof, MapProof},
+    storage::MapProof,
 };
 
 use super::{

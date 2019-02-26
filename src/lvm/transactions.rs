@@ -1,5 +1,5 @@
 use exonum::{
-    blockchain::{ExecutionError, ExecutionResult, Transaction, TransactionSet, TransactionContext},
+    blockchain::{ExecutionError, ExecutionResult, Transaction, TransactionContext},
     crypto::{PublicKey, SecretKey},
     messages::{Message, RawTransaction, Signed},
 };
