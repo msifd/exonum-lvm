@@ -2,6 +2,7 @@
 extern crate serde_json;
 
 use common::{
+    ALICE_NAME,
     testkit::create_testkit,
 };
 
@@ -22,7 +23,6 @@ fn create_contract() {
     assert_eq!(contract.pub_key, contract_pub);
     assert_eq!(contract.code, code);
 }
-
 
 #[test]
 fn call_contract() {
@@ -120,4 +120,34 @@ fn contract_num_types() {
 
     let contract = api.get_contract(contract_pub).unwrap();
     assert_eq!(contract.state.get("value"), Some(&"10.0".to_string()));
+}
+
+#[test]
+fn contract_do_transfer() {
+    let (mut testkit, api) = create_testkit();
+    let (tx_alice, key_alice) = api.create_wallet(ALICE_NAME);
+
+    let code = r#"
+        function transfer_half(to, amount)
+            transfer(to, amount / 2)
+        end
+    "#;
+    let (tx, contract_pub) = api.create_contract(code);
+    testkit.create_block();
+    api.assert_tx_status(tx_alice.hash(), &json!({ "type": "success" }));
+    api.assert_tx_status(tx.hash(), &json!({ "type": "success" }));
+
+    let wallet = api.get_wallet(tx_alice.author()).unwrap();
+    assert_eq!(wallet.balance, 100);
+    let wallet = api.get_wallet(contract_pub).unwrap();
+    assert_eq!(wallet.balance, 100);
+
+    let tx = api.call_contract(&contract_pub, "transfer_half", vec![&tx_alice.author().to_hex(), "10"]);
+    testkit.create_block();
+    api.assert_tx_status(tx.hash(), &json!({ "type": "success" }));
+
+    let wallet = api.get_wallet(tx_alice.author()).unwrap();
+    assert_eq!(wallet.balance, 105);
+    let wallet = api.get_wallet(contract_pub).unwrap();
+    assert_eq!(wallet.balance, 95);
 }

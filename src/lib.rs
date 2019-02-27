@@ -17,7 +17,7 @@
 #![deny(
     missing_debug_implementations,
     // missing_docs,
-    unsafe_code,
+    // unsafe_code,
     bare_trait_objects
 )]
 
@@ -28,6 +28,7 @@ extern crate failure;
 #[macro_use]
 extern crate serde_derive;
 extern crate rlua;
+extern crate hex;
 
 pub mod proto;
 pub mod currency;

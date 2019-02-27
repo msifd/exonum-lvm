@@ -3,10 +3,7 @@ use exonum::{
     storage::{Fork, ProofMapIndex, Snapshot},
 };
 
-use super::{
-    contract::Contract,
-    runner::Runner,
-};
+use super::contract::Contract;
 
 #[derive(Debug)]
 pub struct Schema<T> {
@@ -48,12 +45,5 @@ impl Schema<&mut Fork> {
     pub fn create_contract(&mut self, pub_key: &PublicKey, code: &str) {
         let contract = Contract::new(pub_key, code);
         self.contracts_mut().put(pub_key, contract);
-    }
-
-    pub fn call_contract(&mut self, contract: Contract, fn_name: &str, args: Vec<String>) -> Result<(), String> {
-        let contract = Runner::exec(contract, fn_name, args)?;
-        let pub_key = contract.pub_key;
-        self.contracts_mut().put(&pub_key, contract);
-        Ok(())
     }
 }
