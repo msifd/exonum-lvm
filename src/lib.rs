@@ -17,7 +17,7 @@
 #![deny(
     missing_debug_implementations,
     // missing_docs,
-    // unsafe_code,
+    unsafe_code,
     bare_trait_objects
 )]
 

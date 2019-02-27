@@ -6,19 +6,19 @@ use std::collections::HashMap;
 
 use crate::{currency::wallet::Wallet, lvm::contract::Contract};
 
-use super::{context_wrap::RunnerCtxWrap, lua_api::CurrencyApi};
+use super::{context_wrap::RunnerCtxWrap};
 
 pub type State = HashMap<String, String>;
 
 #[derive(Debug)]
-pub struct Runner<'run, 'ctx> {
+pub struct Runner<'a, 'ctx> {
     pub contract: Contract,
     pub contract_wallet: Wallet,
-    pub context: &'run mut TransactionContext<'ctx>,
+    pub context: &'a mut TransactionContext<'ctx>,
 }
 
-impl<'run, 'ctx> Runner<'run, 'ctx> {
-    pub fn exec(&mut self, fn_name: &str, args: Vec<String>) -> Result<Contract, String> {
+impl Runner<'_, '_> {
+    pub fn exec(mut self, fn_name: &str, args: Vec<String>) -> Result<Contract, String> {
         let lvm_lua_subset = StdLib::BASE
             | StdLib::TABLE
             | StdLib::STRING
@@ -27,7 +27,7 @@ impl<'run, 'ctx> Runner<'run, 'ctx> {
             | StdLib::PACKAGE;
         let lua = Lua::new_with(lvm_lua_subset);
 
-        RunnerCtxWrap::init(self);
+        RunnerCtxWrap::init(&mut self);
 
         let result: rlua::Result<_> = lua.context(|lua_ctx| {
             let globals = lua_ctx.globals();
@@ -35,11 +35,7 @@ impl<'run, 'ctx> Runner<'run, 'ctx> {
             let state_table = lua_ctx.pack(self.contract.state.clone())?;
             globals.raw_set("state", state_table)?;
 
-            let transfer_fn = lua_ctx.create_function(|_, (to, amount): (String, u64)| {
-                RunnerCtxWrap::transfer(&to, amount);
-                Ok(())
-            })?;
-            globals.raw_set("transfer", transfer_fn)?;
+            RunnerCtxWrap::register_functions(&lua_ctx)?;
 
             lua_ctx.load(&self.contract.code).exec()?;
 

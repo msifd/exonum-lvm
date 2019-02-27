@@ -134,7 +134,7 @@ impl Transaction for CallContract {
             }
         };
 
-        let mut runner = Runner {
+        let runner = Runner {
             contract,
             contract_wallet,
             context: &mut context,

@@ -1,5 +1,6 @@
 pub use runner::{Runner, State};
 
 mod runner;
-mod context_wrap;
 mod lua_api;
+#[allow(unsafe_code)]
+mod context_wrap;
